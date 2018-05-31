@@ -9,11 +9,10 @@
     <div class="container">
       <h1>Ranking!!</h1>
 
-      <table class="table" id="ranking"
-        data-toggle="table">
+      <table class="table" id="ranking">
         <thead>
           <tr>
-            <th scope="col" data-field="id">id</th>
+            <th scope="col" data-field="rank">rank</th>
             <th scope="col" data-field="name">name</th>
             <th scope="col" data-field="score">score</th>
           </tr>
@@ -26,12 +25,35 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js" integrity="sha256-/GKyJ0BQJD8c8UYgf7ziBrs/QgcikS7Fv/SaArgBcEI=" crossorigin="anonymous"></script>
   <script type="text/javascript">
-    (function(teams) {
+    (function(teams, _, $) {
       teams.initialize();
+      teams.getContext(context => {
+        console.log(context);
+        let headers = {
+            'Content-Type': 'application/json'
+        };
+
+        var requestAjax = function(endpoint, callback, body) {
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function(){
+              if (this.readyState==4 && this.status==200) {
+                  callback(this.response);
+              }
+          };
+          xhr.responseType = 'json';
+          xhr.open('POST', endpoint,true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify(body));
+        };
+        requestAjax('//723287a0.ap.ngrok.io/api/ranking', (res) => {
+          view(res);
+        }, context);
+      });
 
       // https://msopenhack.azurewebsites.net/swagger/ui/index#!/Trivia/Trivia_GetLeaderboard
-      const ranking = [
+      const data = [
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "name": "dog",
@@ -46,15 +68,29 @@
           "achievementBadge": "string",
           "achievementBadgeIcon": "string"
         },
+        {
+          "id": "20000000-0000-0000-0000-000000000000",
+          "name": "parrot",
+          "score": 50,
+          "achievementBadge": "string",
+          "achievementBadgeIcon": "string"
+        },
       ];
 
-      $(function () {
-        $('#ranking').bootstrapTable({
-            data: ranking,
-        });
-      });
+      function view(data) {
+        const ranking =
+          _.chain(data)
+            .map((d) => _.pick(d, ['id', 'name', 'score']))
+            .sortBy(['score'])
+            .reverse()
+            .value();
 
-    })(microsoftTeams);
+          $('#ranking').bootstrapTable({
+              data: _.merge(ranking, _.range(1, data.length + 1).map((v) => { return {rank: v};})),
+          });
+      }
+
+    })(microsoftTeams, _, jQuery);
   </script>
   </body>
 </html>
