@@ -5,7 +5,7 @@
     </head>
   <body>
     <div class="container">
-      <p>ここでリソースの設定ができるらしいですが、とりあえずスキップします。</p>
+      <p>タブを消します。</p>
     </div>
 
     <script src="https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js"></script>
@@ -17,13 +17,6 @@
 
       microsoftTeams.initialize();
       microsoftTeams.settings.setValidityState(true);
-      microsoftTeams.settings.setSettings({
-        entityId: "entity",
-        contentUrl: "https://f60a21bc.ngrok.io/",
-        suggestedTabName: "sample",
-        websiteUrl: "https://f60a21bc.ngrok.io/about/",
-        removeUrl: "https://f60a21bc.ngrok.io/remove/"});
-
     </script>
   </body>
 </html>
